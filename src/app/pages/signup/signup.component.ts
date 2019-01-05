@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Alert } from './../../classes/alert';
+import { AlertType } from 'src/app/enums/alert-type.enum';
+import { AlertService } from './../../services/alert.service';
 
 @Component({
   selector: 'app-signup',
@@ -10,7 +13,7 @@ export class SignupComponent implements OnInit {
 
   public signupForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private alertService: AlertService) {
     this.createForm();
   }
 
@@ -19,7 +22,7 @@ export class SignupComponent implements OnInit {
 
   private createForm(): void {
     this.signupForm = this.fb.group({
-      name:['', [Validators.required]],
+      name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required , Validators.minLength(8)]]
     });
@@ -27,7 +30,12 @@ export class SignupComponent implements OnInit {
 
   public submit(): void {
     // TODO call the auth service
-    const {name, email, password} = this.signupForm.value;
-    console.log('​SignupComponent -> {name, email, password}', {name, email, password});
-  }
+    if (this.signupForm.valid) {
+      const {name, email, password} = this.signupForm.value;
+      console.log('​SignupComponent -> {name, email, password}', {name, email, password});
+    } else {
+      const failedSignupAlert = new Alert('Invalid Credentials', AlertType.Danger);
+      this.alertService.alerts.next(failedSignupAlert);
+    }
+  } 
 }
