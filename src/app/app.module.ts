@@ -9,6 +9,8 @@ import { AppComponent,  } from './app.component';
 
 // Services
 import { AlertService } from './services/alert.service';
+import { NgxLoadingModule, NgxLoadingService} from 'ngx-loading';
+
 // Components
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent} from './pages/signup/signup.component';
@@ -34,6 +36,7 @@ import { ChatroomWindowComponent } from './pages/chat/components/chatroom-window
     ChatroomWindowComponent
   ],
   imports: [
+    NgxLoadingModule.forRoot({}),
     AlertModule.forRoot(),
     BrowserModule,
     AppRoutingModule,
@@ -41,7 +44,7 @@ import { ChatroomWindowComponent } from './pages/chat/components/chatroom-window
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [AlertService],
+  providers: [AlertService, NgxLoadingService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
