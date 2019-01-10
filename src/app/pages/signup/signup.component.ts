@@ -3,6 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Alert } from './../../classes/alert';
 import { AlertType } from 'src/app/enums/alert-type.enum';
 import { AlertService } from './../../services/alert.service';
+import { AuthService } from 'src/app/services/auth.service';
+import { LoadingService } from 'src/app/services/loading.service';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -12,8 +16,15 @@ import { AlertService } from './../../services/alert.service';
 export class SignupComponent implements OnInit {
 
   public signupForm: FormGroup;
+  private subscriptions: Subscription[] = [];
 
-  constructor(private fb: FormBuilder, private alertService: AlertService) {
+  constructor(
+    private fb: FormBuilder,
+    private alertService: AlertService,
+    private auth: AuthService,
+    private loadingService: LoadingService,
+    private router: Router,
+    ) {
     this.createForm();
   }
 
@@ -33,9 +44,20 @@ export class SignupComponent implements OnInit {
     if (this.signupForm.valid) {
       const {name, email, password} = this.signupForm.value;
       console.log('​SignupComponent -> {name, email, password}', {name, email, password});
+      this.subscriptions.push(
+        this.auth.signup(name, email, password).subscribe(success => {
+          if (success) {
+            this.router.navigate(['/chat']);
+          } else {
+            const failedSignupAlert = new Alert('Sign up Failed.', AlertType.Danger);
+            this.alertService.alerts.next(failedSignupAlert);
+          }
+          this.loadingService.isLoading.next(false);
+         })
+      );
     } else {
       const failedSignupAlert = new Alert('Invalid Credentials', AlertType.Danger);
       this.alertService.alerts.next(failedSignupAlert);
     }
-  } 
+  }
 }

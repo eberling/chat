@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Alert } from './../classes/alert';
+import { AlertType } from '../enums/alert-type.enum';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class AlertService {
 
-  public alerts: Subject<Alert> = new Subject();
+  public alerts: Subject<Alert> = new Subject;
 
-  constructor() { }
+  constructor() {
+
+   }
 }
