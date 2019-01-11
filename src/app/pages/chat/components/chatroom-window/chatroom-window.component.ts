@@ -1,5 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ChatroomTitleBarComponent } from '../chatroom-title-bar/chatroom-title-bar.component';
+import { Observable, Subscription } from 'rxjs'; 
+import { AuthService } from 'src/app/services/auth.service';
+import { ActivatedRoute } from '@angular/router';
+import { ChatroomService } from 'src/app/services/chatroom.service';
+import { LoadingService } from 'src/app/services/loading.service';
 
 
 @Component({
@@ -7,7 +12,12 @@ import { ChatroomTitleBarComponent } from '../chatroom-title-bar/chatroom-title-
   templateUrl: './chatroom-window.component.html',
   styleUrls: ['./chatroom-window.component.scss']
 })
-export class ChatroomWindowComponent implements OnInit {
+export class ChatroomWindowComponent implements OnInit, OnDestroy {
+
+  public chatroom: Observable<any>;
+  public currentUser: any = null;
+  public currentName: String = 'bob';
+  private subscriptions: Subscription[] = [];
 
   public dummyData = [
     {
@@ -52,9 +62,40 @@ export class ChatroomWindowComponent implements OnInit {
     }
   ];
 
-  constructor() { }
+  constructor(
+    private auth: AuthService,
+    private route: ActivatedRoute,
+    private chatroomService: ChatroomService,
+    private loadingService: LoadingService
+    ) {
+
+      this.subscriptions.push(
+        this.chatroomService.selectedChatroom.subscribe(chatroom => {
+          this.chatroom = chatroom;
+          this.loadingService.isLoading.next(false);
+        })
+      );
+  }
 
   ngOnInit() {
+    this.auth.currentUser.subscribe(user => {
+      if ( !user ) {
+        this.currentName = 'bob';
+      }
+      this.currentUser = user;
+      this.currentName = this.currentUser.name;
+    });
+
+    this.subscriptions.push(
+      this.route.paramMap.subscribe(params => {
+        const chatroomId = params.get('chatroomId');
+        this.chatroomService.changeChatroom.next(chatroomId);
+      })
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
 }

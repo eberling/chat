@@ -23,19 +23,18 @@ export class AuthService {
     private router: Router,
     private alertService: AlertService,
     private afAuth: AngularFireAuth,
-    private db: AngularFirestore
+    private db: AngularFirestore,
   ) {
-    // TODO fetch the user from the Firebase Backend then set the user
     this.currentUser = this.afAuth.authState
-     .pipe(switchMap((user) => {
-       console.log('user ' + user);
-      if (user) {
-        return this.db.doc<User>(`users/${user.uid}`).valueChanges();
-      } else {
-        return of(null);
-      }
-    }));
-  }
+    .pipe(switchMap((user) => {
+      console.log('user ' + user);
+     if (user) {
+       return this.db.doc<User>(`users/${user.uid}`).valueChanges();
+     } else {
+       return of(null);
+     }
+   }));
+ }
 
   public signup(name: string, email: string, password: string): Observable<boolean> {
     return from(
@@ -49,7 +48,6 @@ export class AuthService {
             // tslint:disable-next-line:max-line-length
             photoUrl: 'https://firebasestorage.googleapis.com/v0/b/chat-99999.appspot.com/o/default_profile_pic.jpg?alt=media&token=93cb98cf-787a-4aef-bd2d-4e2b1f79fbf6',
           };
-
           userRef.set(updatedUser);
           return true;
         })
