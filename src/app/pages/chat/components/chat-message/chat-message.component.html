@@ -5,9 +5,9 @@
 
   <div class="bubble d-flex flex-column">
     <div class="name">
-      {{message.sender.firstName}}
+      {{message.sender.name}}
     </div>
-    <small class="timestamp">{{message.createdAt | date:'medium'}} </small>
+    <small class="date">{{message.createdAt.toDate() | date:'medium'}} </small>
     <div class="message">
       {{message.message}}
     </div>

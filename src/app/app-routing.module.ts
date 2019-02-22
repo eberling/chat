@@ -4,6 +4,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
 import { ChatComponent } from './pages/chat/chat.component';
 import { AuthGuard } from './guards/auth.guard';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 
 const routes: Routes = [
@@ -16,6 +17,7 @@ const routes: Routes = [
         { path: ':chatroom.id', component: ChatComponent}
     ]
   },
+  { path: 'profile/:userId', component: ProfileComponent, canActivate: [AuthGuard]},
   { path: '**', redirectTo: '/login'}
 ];
 

@@ -17,6 +17,7 @@ import { switchMap } from 'rxjs/operators';
 export class AuthService {
 
   public currentUser: Observable <User | null>;
+  public currentUserSnapshot: User | null;
 
 
   constructor(
@@ -34,6 +35,8 @@ export class AuthService {
        return of(null);
      }
    }));
+
+   this.setCurrentUserSnapshot();
  }
 
   public signup(name: string, email: string, password: string): Observable<boolean> {
@@ -67,6 +70,10 @@ export class AuthService {
       this.alertService.alerts.next(new Alert('Signed out.'));
     });
 
+  }
+
+  private setCurrentUserSnapshot(): void {
+    this.currentUser.subscribe(user => this.currentUserSnapshot = user);
   }
 
 }

@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ViewChild } from '@angular/core';
 import { ChatroomTitleBarComponent } from '../chatroom-title-bar/chatroom-title-bar.component';
-import { Observable, Subscription } from 'rxjs'; 
+import { Observable, Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { ActivatedRoute } from '@angular/router';
 import { ChatroomService } from 'src/app/services/chatroom.service';
@@ -12,55 +12,15 @@ import { LoadingService } from 'src/app/services/loading.service';
   templateUrl: './chatroom-window.component.html',
   styleUrls: ['./chatroom-window.component.scss']
 })
-export class ChatroomWindowComponent implements OnInit, OnDestroy {
+export class ChatroomWindowComponent implements OnInit, OnDestroy, AfterViewChecked {
+
+  @ViewChild('scrollContainer') private scrollContainer: ElementRef;
 
   public chatroom: Observable<any>;
   public currentUser: any = null;
   public currentName: String = 'bob';
   private subscriptions: Subscription[] = [];
-
-  public dummyData = [
-    {
-      // tslint:disable-next-line:max-line-length
-      message: 'Sed enim velit, condimentum nec tincidunt non, elementum sed nisi.',
-      createdAt: new Date(),
-      sender: {
-        firstName: 'Steve',
-        lastName: 'Smith',
-        photoUrl: 'http://via.placeholder.com/50x50'
-      }
-    },
-    {
-      // tslint:disable-next-line:max-line-length
-      message: 'Quisque ornare dapibus convallis. Nam tempor dui a nisl lobortis, sed gravida lectus laoreet. Nullam ornare dui magna. Duis in nisi libero.',
-      createdAt: new Date(),
-      sender: {
-        firstName: 'Bob',
-        lastName: 'Anderson',
-        photoUrl: 'http://via.placeholder.com/50x50'
-      }
-    },
-    {
-      // tslint:disable-next-line:max-line-length
-      message: 'Ut eu elit sodales leo ultricies pulvinar. Fusce iaculis magna gravida tempus congue. Ut sit amet nulla sed nisi cursus mattis quis at lacus. Proin commodo, justo in elementum scelerisque, sem urna vulputate enim, ac posuere purus diam ac velit. Sed enim velit, condimentum nec tincidunt non, elementum sed nisi. Cras pharetra dui eu scelerisque pharetra. Curabitur auctor feugiat nibh eget molestie. Duis scelerisque auctor mi, sit amet efficitur magna vulputate quis. Quisque ornare dapibus convallis. Nam tempor dui a nisl lobortis, sed gravida lectus laoreet. Nullam ornare dui magna. Duis in nisi libero. Praesent eu tristique felis. Nunc vestibulum enim et justo dignissim lacinia nec et diam.',
-      createdAt: new Date(),
-      sender: {
-        firstName: 'Sally',
-        lastName: 'Jones',
-        photoUrl: 'http://via.placeholder.com/50x50'
-      }
-    },
-    {
-      // tslint:disable-next-line:max-line-length
-      message: 'Quisque ornare dapibus convallis. Nam tempor dui a nisl lobortis, sed gravida lectus laoreet. Nullam ornare dui magna. Duis in nisi libero.',
-      createdAt: new Date(),
-      sender: {
-        firstName: 'Sally',
-        lastName: 'Jones',
-        photoUrl: 'http://via.placeholder.com/50x50'
-      }
-    }
-  ];
+  public messages: Observable<any>;
 
   constructor(
     private auth: AuthService,
@@ -68,16 +28,16 @@ export class ChatroomWindowComponent implements OnInit, OnDestroy {
     private chatroomService: ChatroomService,
     private loadingService: LoadingService
     ) {
-
       this.subscriptions.push(
         this.chatroomService.selectedChatroom.subscribe(chatroom => {
           this.chatroom = chatroom;
-          this.loadingService.isLoading.next(false);
+          console.log('​ChatroomWindowComponent -> this.chatroom', this.chatroom);
         })
       );
   }
 
   ngOnInit() {
+    this.scrollToBottom();
     this.auth.currentUser.subscribe(user => {
       if ( !user ) {
         this.currentName = 'bob';
@@ -88,14 +48,37 @@ export class ChatroomWindowComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(
       this.route.paramMap.subscribe(params => {
-        const chatroomId = params.get('chatroomId');
+        console.log(params.keys);
+        const chatroomId = params.get('chatroom.id');
+        console.log('ngOnInit -> chatroomId', chatroomId);
         this.chatroomService.changeChatroom.next(chatroomId);
       })
     );
+
+    this.subscriptions.push(
+      this.chatroomService.selectedChatroomMessages.subscribe(messages => {
+        this.messages = messages;
+        this.loadingService.isLoading.next(false);
+      })
+    )
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  onClick() {
+    console.log(this.chatroom);
+  }
+
+  private scrollToBottom(): void {
+    try {
+      console.log('testicle');
+      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+    } catch (err) {}
+  }
 }
